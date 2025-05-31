@@ -2,6 +2,9 @@
 
 const tbody = document.querySelector('tbody');
 const tbodyArr = Array.from(tbody.rows);
+const table = document.querySelector('table');
+// масив заголовків
+const thead = Array.from(document.querySelectorAll('thead th'));
 
 function convertString(str) {
   return parseFloat(str.replace(/[$,]/g, ''));
@@ -63,9 +66,6 @@ function orderTable(array) {
   });
 }
 
-// масив заголовків
-const thead = Array.from(document.querySelectorAll('thead th'));
-
 // обʼєкт, що зберігає всі функції сортування відповідно до ключа
 const sortFunctions = {
   Name: (a, b) => a.name.localeCompare(b.name),
@@ -106,18 +106,19 @@ thead.forEach((th) => {
   });
 });
 
-const tableRows = Array.from(document.querySelectorAll('tbody tr'));
+tbody.addEventListener('click', (e) => {
+  const row = e.target.closest('tr');
 
-tableRows.forEach((tr) => {
-  tr.addEventListener('click', (e) => {
-    const selected = e.currentTarget;
+  if (!row) {
+    return;
+  }
 
-    tableRows.forEach((row) => row.classList.remove('active'));
-    selected.classList.add('active');
-  });
+  const rows = document.querySelectorAll('tbody tr');
+
+  rows.forEach((r) => r.classList.remove('active'));
+  row.classList.add('active');
 });
 
-const table = document.querySelector('table');
 const form = document.createElement('form');
 
 form.classList.add('new-employee-form');
@@ -238,7 +239,7 @@ form.addEventListener('submit', (e) => {
 
   if (!latinRegex.test(nameInForm) || !latinRegex.test(positionInForm)) {
     pushNotification(
-      10,
+      100,
       10,
       'Error',
       'Please, use only Latin letters.',
@@ -250,7 +251,7 @@ form.addEventListener('submit', (e) => {
 
   if (nameInForm.length < 4) {
     pushNotification(
-      10,
+      100,
       10,
       'Error',
       `Please lengthen your name to 4 characters or more (you are currently using ${nameInForm.length} character(s)).`,
@@ -263,7 +264,13 @@ form.addEventListener('submit', (e) => {
   const age = Number(formData.get('age'));
 
   if (isNaN(age) || age < 18 || age > 90) {
-    pushNotification(10, 10, 'Error', 'Age must be between 18 and 90', 'error');
+    pushNotification(
+      100,
+      10,
+      'Error',
+      'Age must be between 18 and 90',
+      'error',
+    );
 
     return;
   }
@@ -271,7 +278,7 @@ form.addEventListener('submit', (e) => {
   tbody.appendChild(tr);
 
   pushNotification(
-    10,
+    100,
     10,
     'Success',
     `Great! The information has been added to the table.`,
@@ -286,10 +293,10 @@ const positionInput = form.elements['position'];
 positionInput.addEventListener('invalid', (e) => {
   e.preventDefault();
 
-  pushNotification(10, 10, 'Error', 'Please, enter your position.', 'error');
+  pushNotification(130, 10, 'Error', 'Please, enter your position.', 'error');
 });
 
-const pushNotification = (posTop, posRight, title, description, type) => {
+function pushNotification(posTop, posRight, title, description, type) {
   const message = document.createElement('div');
 
   message.setAttribute('data-qa', 'notification');
@@ -317,4 +324,4 @@ const pushNotification = (posTop, posRight, title, description, type) => {
   document.body.append(message);
 
   setTimeout(() => (message.style.display = 'none'), 2000);
-};
+}
